@@ -54,20 +54,27 @@ function App() {
         throw new Error('Camera API not supported by this browser.');
       }
 
-      // Check camera permission first if possible
-      if (navigator.permissions) {
-        const permission = await navigator.permissions.query({ name: 'camera' });
-        if (permission.state === 'denied') {
-          throw new Error('Camera permission denied. Please enable camera permissions in your browser settings.');
+      // Check camera permission first if possible (only for modern APIs)
+      if (hasNative && navigator.permissions) {
+        try {
+          const permission = await navigator.permissions.query({ name: 'camera' });
+          if (permission.state === 'denied') {
+            throw new Error('Camera permission denied. Please enable camera permissions in your browser settings.');
+          }
+        } catch (permErr) {
+          // permissions API might not support 'camera' query, continue anyway
+          console.warn('Could not query camera permissions:', permErr);
         }
       }
 
       // obtain stream using whichever API is available
       let stream;
       if (hasNative) {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
       } else {
-        // legacy callback-style API
+        // legacy callback-style API (Safari on iOS)
         stream = await new Promise((resolve, reject) => {
           legacyGetUserMedia.call(
             navigator,
@@ -80,6 +87,14 @@ function App() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // For iOS Safari, play video explicitly
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.play().catch(err => {
+              console.warn('Could not auto-play video:', err);
+            });
+          }
+        }, 100);
       }
     } catch (err) {
       const msg = err.message || 'Unknown camera error';
@@ -145,7 +160,13 @@ function App() {
         <button onClick={startScanning} disabled={scanning}>Scan Card</button>
         {scanning && (
           <div>
-            <video ref={videoRef} autoPlay style={{width: '300px'}} />
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline
+              muted
+              style={{width: '300px'}} 
+            />
             <button onClick={captureImage}>Capture</button>
           </div>
         )}
