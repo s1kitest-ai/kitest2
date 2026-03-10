@@ -48,10 +48,10 @@ describe('camera scanning', () => {
     fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ library: [] }) });
     render(<App />);
     // wait for loading to finish and scan button to appear
-    expect(await screen.findByText('Scan Card')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /scan card/i })).toBeInTheDocument();
 
     // click scan button
-    await userEvent.click(await screen.findByText('Scan Card'));
+    await userEvent.click(await screen.findByRole('button', { name: /scan card/i }));
 
     await screen.findByText(/Camera API not supported/i);
   });
@@ -64,8 +64,8 @@ describe('camera scanning', () => {
     };
 
     render(<App />);
-    await screen.findByText('Scan Card');
-    await userEvent.click(screen.getByText('Scan Card'));
+    await screen.findByRole('button', { name: /scan card/i });
+    await userEvent.click(screen.getByRole('button', { name: /scan card/i }));
 
     await screen.findByText(/Camera permission denied/i);
   });
@@ -77,8 +77,8 @@ describe('camera scanning', () => {
     };
 
     render(<App />);
-    await screen.findByText('Scan Card');
-    await userEvent.click(screen.getByText('Scan Card'));
+    await screen.findByRole('button', { name: /scan card/i });
+    await userEvent.click(screen.getByRole('button', { name: /scan card/i }));
 
     await screen.findByText(/Some error/i);
   });
