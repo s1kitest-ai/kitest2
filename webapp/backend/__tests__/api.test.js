@@ -75,4 +75,46 @@ describe('API Tests', () => {
     expect(response.status).toBe(500);
     expect(response.body).toEqual({ error: 'DB Error' });
   });
+
+  test('POST /api/library should insert card and library entry', async () => {
+    // simulate insert or ignore success then select
+    db.run.mockImplementation((sql, params, callback) => {
+      // first call is insert or ignore, second is library insert
+      callback(null);
+    });
+    db.get.mockImplementation((sql, params, callback) => {
+      callback(null, { id: 42 });
+    });
+
+    const cardData = {
+      name: 'Charmander',
+      set_name: 'Base Set',
+      rarity: 'Common',
+      type: 'Fire',
+      hp: 50,
+      image_url: 'http://example.com/charmander.png',
+      condition: 'Near Mint',
+      purchase_price: 5.0,
+      purchase_date: '2021-01-01',
+      notes: 'First card'
+    };
+
+    const response = await request(app).post('/api/library').send(cardData);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ id: undefined }); // lastID not tracked in mock
+    expect(db.get).toHaveBeenCalledWith(
+      'SELECT id FROM cards WHERE name = ? AND set_name = ?',
+      [cardData.name, cardData.set_name],
+      expect.any(Function)
+    );
+  });
+
+  test('POST /api/library should handle db errors', async () => {
+    db.run.mockImplementation((sql, params, callback) => {
+      callback(new Error('insert fail'));
+    });
+    const response = await request(app).post('/api/library').send({});
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: 'insert fail' });
+  });
 });

@@ -49,6 +49,13 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
+## Known Issues
+
+- **Camera Access Denied**: The app may display "Camera access denied" error when attempting to scan items. This occurs when the browser blocks camera permissions. To resolve, ensure the site has camera permissions enabled in browser settings. The error message now includes instructions and allows dismissing the error to retry.
+- **Browser Not Prompting for Camera Permission**: In some browsers or configurations, the app may not prompt for camera permission. Ensure the site is accessed over HTTPS (or localhost for development) and that camera permissions are not permanently blocked in browser settings.
+- **Safari on iOS Reports Camera API Unsupported**: Some versions of Safari on iOS may incorrectly claim that the MediaDevices `getUserMedia` API is not supported, even though the device has a camera. This can prevent scanning functionality. Users should try updating iOS/Safari or use a different browser if possible.
+- **Camera API Not Supported**: Older browsers or certain environments may not support the MediaDevices `getUserMedia` API. The app will now display an error if the camera API is unavailable; use a modern browser for scanning.
+
 ### Analyzing the Bundle Size
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)

@@ -36,30 +36,39 @@ app.get('/api/library', (req, res) => {
 app.post('/api/library', (req, res) => {
   const { name, set_name, rarity, type, hp, image_url, condition, purchase_price, purchase_date, notes } = req.body;
   // First, insert or find card
-  db.run('INSERT OR IGNORE INTO cards (name, set_name, rarity, type, hp, image_url) VALUES (?, ?, ?, ?, ?, ?)',
-    [name, set_name, rarity, type, hp, image_url], function(err) {
+  db.run(
+    'INSERT OR IGNORE INTO cards (name, set_name, rarity, type, hp, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+    [name, set_name, rarity, type, hp, image_url],
+    function (err) {
       if (err) {
         res.status(500).json({ error: err.message });
         return;
       }
-      const cardId = this.lastID || this.changes;  // For INSERT OR IGNORE, might need to get existing id
-      // Actually, better to select or insert
-      db.get('SELECT id FROM cards WHERE name = ? AND set_name = ?', [name, set_name], (err, row) => {
-        if (err) {
-          res.status(500).json({ error: err.message });
-          return;
-        }
-        const cardId = row.id;
-        db.run('INSERT INTO user_library (card_id, condition, purchase_price, purchase_date, notes) VALUES (?, ?, ?, ?, ?)',
-          [cardId, condition, purchase_price, purchase_date, notes], function(err) {
-            if (err) {
-              res.status(500).json({ error: err.message });
-              return;
+      // after insert or ignore, query the card id
+      db.get(
+        'SELECT id FROM cards WHERE name = ? AND set_name = ?',
+        [name, set_name],
+        (err, row) => {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          const cardId = row.id;
+          db.run(
+            'INSERT INTO user_library (card_id, condition, purchase_price, purchase_date, notes) VALUES (?, ?, ?, ?, ?)',
+            [cardId, condition, purchase_price, purchase_date, notes],
+            function (err) {
+              if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+              }
+              res.json({ id: this.lastID });
             }
-            res.json({ id: this.lastID });
-          });
-      });
-    });
+          );
+        }
+      );
+    }
+  );
 });
 
 // Get all cards (general)

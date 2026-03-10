@@ -34,14 +34,62 @@ function App() {
 
   const startScanning = async () => {
     setScanning(true);
+    setError(null); // Clear any previous error
+
+    // reset any previous video stream
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+      videoRef.current.srcObject = null;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // unify getUserMedia across browsers (including legacy WebKit on iOS)
+      const hasNative = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+      const legacyGetUserMedia =
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia;
+
+      if (!hasNative && !legacyGetUserMedia) {
+        throw new Error('Camera API not supported by this browser.');
+      }
+
+      // Check camera permission first if possible
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        if (permission.state === 'denied') {
+          throw new Error('Camera permission denied. Please enable camera permissions in your browser settings.');
+        }
+      }
+
+      // obtain stream using whichever API is available
+      let stream;
+      if (hasNative) {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      } else {
+        // legacy callback-style API
+        stream = await new Promise((resolve, reject) => {
+          legacyGetUserMedia.call(
+            navigator,
+            { video: true },
+            resolve,
+            reject
+          );
+        });
+      }
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
-      setError('Camera access denied');
+      const msg = err.message || 'Unknown camera error';
+      setError(msg);
       setScanning(false);
+      // make sure no lingering stream
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+        videoRef.current.srcObject = null;
+      }
     }
   };
 
@@ -78,13 +126,22 @@ function App() {
     .catch(err => setError(err.message));
   };
 
+  const clearError = () => {
+    setError(null);
+  };
+
   if (loading) return <div className="App">Loading...</div>;
-  if (error) return <div className="App">Error: {error}</div>;
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Pokémon Card Library</h1>
+        {error && (
+          <div className="error-message">
+            <p>Error: {error}</p>
+            <button onClick={clearError}>Dismiss</button>
+          </div>
+        )}
         <button onClick={startScanning} disabled={scanning}>Scan Card</button>
         {scanning && (
           <div>
@@ -106,6 +163,7 @@ function App() {
                 rarity: formData.get('rarity'),
                 type: formData.get('type'),
                 hp: parseInt(formData.get('hp')),
+                image_url: capturedImage, // Use the captured image
                 condition: formData.get('condition'),
                 purchase_price: parseFloat(formData.get('purchase_price')),
                 purchase_date: formData.get('purchase_date'),
