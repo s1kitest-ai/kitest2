@@ -1,15 +1,23 @@
-module.exports = {
-  env: {
-    node: true,
-    es2021: true,
+module.exports = [
+  {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['warn'],
+      'no-console': 'off',
+    },
   },
-  extends: ['eslint:recommended'],
-  parserOptions: {
-    ecmaVersion: 12,
-  },
-  rules: {
-    // customize rules as needed
-    'no-unused-vars': ['warn'],
-    'no-console': 'off',
-  },
-};
+];
