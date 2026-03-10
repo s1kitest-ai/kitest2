@@ -63,6 +63,9 @@ app.post('/api/library', (req, res) => {
 });
 
 // Get all cards (general)
+=======
+// Get all cards
+>>>>>>> main
 app.get('/api/cards', (req, res) => {
   db.all('SELECT * FROM cards', [], (err, rows) => {
     if (err) {
@@ -73,6 +76,22 @@ app.get('/api/cards', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Add a card
+app.post('/api/cards', (req, res) => {
+  const { name, set_name, rarity, image_url } = req.body;
+  db.run('INSERT INTO cards (name, set_name, rarity, image_url) VALUES (?, ?, ?, ?)',
+    [name, set_name, rarity, image_url], function(err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ id: this.lastID });
+    });
+});
+
+>>>>>>> main
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
