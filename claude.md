@@ -1,0 +1,19 @@
+# Claude with Agents
+
+This project is set up for using Claude AI with multiple specialized agents.
+
+## Structure
+
+- `claude.md`: Main configuration and instructions for Claude.
+- `agents/`: Directory containing individual agent configurations.
+  - Each agent has its own folder with an `agent.md` file defining its role and prompt.
+
+## Usage
+
+To use an agent, reference the corresponding `agent.md` file in your interactions with Claude.
+
+## Agents
+
+- Agent 1: [Brief description]
+- Agent 2: [Brief description]
+- Agent 3: [Brief description]
