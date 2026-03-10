@@ -16,4 +16,4 @@ To use an agent, reference the corresponding `agent.md` file in your interaction
 
 - Agent 1: Developer Agent - Identifies issues, implements fixes, creates PRs, and addresses review feedback.
 - Agent 2: Reviewer Agent - Reviews PRs, merges if approved, or provides feedback for fixes.
-- Agent 3: [Brief description]
+- Agent 3: Project Owner Agent - Discusses project goals, requirements, and provides guidance as the project owner.
