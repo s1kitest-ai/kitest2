@@ -14,6 +14,6 @@ To use an agent, reference the corresponding `agent.md` file in your interaction
 
 ## Agents
 
-- Agent 1: [Brief description]
-- Agent 2: [Brief description]
+- Agent 1: Developer Agent - Identifies issues, implements fixes, creates PRs, and addresses review feedback.
+- Agent 2: Reviewer Agent - Reviews PRs, merges if approved, or provides feedback for fixes.
 - Agent 3: [Brief description]
